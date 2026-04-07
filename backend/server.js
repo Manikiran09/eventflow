@@ -13,16 +13,22 @@ connectDB();
 
 const app = express();
 
+const normalizeOrigin = (value) => (value || '').trim().replace(/\/$/, '');
+
 const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:5173')
 	.split(',')
-	.map((origin) => origin.trim())
+	.map((origin) => normalizeOrigin(origin))
 	.filter(Boolean);
 
 // Middleware
 app.use(cors({
 	origin: (origin, callback) => {
 		if (!origin) return callback(null, true);
-		if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+		if (process.env.NODE_ENV !== 'production') {
+			return callback(null, true);
+		}
+		const requestOrigin = normalizeOrigin(origin);
+		if (allowedOrigins.includes('*') || allowedOrigins.includes(requestOrigin)) {
 			return callback(null, true);
 		}
 		return callback(new Error('Not allowed by CORS'));
