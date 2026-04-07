@@ -55,5 +55,5 @@ If you serve frontend and backend under one domain, route:
 - Backend reachable and returns `200` on `/api/health`
 - Frontend `VITE_API_URL` and `VITE_BACKEND_URL` are correct
 - `FRONTEND_URLS` includes your real frontend domain
-- MongoDB network access allows your backend host
+- MongoDB Atlas Network Access allows your Railway backend IP or uses `0.0.0.0/0` for testing
 - `JWT_SECRET` is strong and private
