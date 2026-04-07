@@ -15,9 +15,19 @@ const app = express();
 
 const normalizeOrigin = (value) => (value || '').trim().replace(/\/$/, '');
 
+const originMatches = (allowedOrigin, requestOrigin) => {
+	if (allowedOrigin === '*') return true;
+	if (allowedOrigin === requestOrigin) return true;
+	if (allowedOrigin.startsWith('*.')) {
+		const suffix = allowedOrigin.slice(1); // ".example.com"
+		return requestOrigin.endsWith(suffix);
+	}
+	return false;
+};
+
 const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:5173')
 	.split(',')
-	.map((origin) => normalizeOrigin(origin))
+	.map((origin) => normalizeOrigin(origin).toLowerCase())
 	.filter(Boolean);
 
 // Middleware
@@ -27,8 +37,8 @@ app.use(cors({
 		if (process.env.NODE_ENV !== 'production') {
 			return callback(null, true);
 		}
-		const requestOrigin = normalizeOrigin(origin);
-		if (allowedOrigins.includes('*') || allowedOrigins.includes(requestOrigin)) {
+		const requestOrigin = normalizeOrigin(origin).toLowerCase();
+		if (allowedOrigins.some((allowedOrigin) => originMatches(allowedOrigin, requestOrigin))) {
 			return callback(null, true);
 		}
 		return callback(new Error('Not allowed by CORS'));

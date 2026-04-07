@@ -1,7 +1,16 @@
 import axios from 'axios';
 
-const backendUrl = (import.meta.env.VITE_BACKEND_URL || '').replace(/\/$/, '');
-const apiBaseUrl = import.meta.env.VITE_API_URL || (backendUrl ? `${backendUrl}/api` : '/api');
+const stripTrailingSlash = (value) => (value || '').replace(/\/$/, '');
+
+const ensureApiPath = (value) => {
+  const normalized = stripTrailingSlash(value || '');
+  if (!normalized) return '';
+  return normalized.endsWith('/api') ? normalized : `${normalized}/api`;
+};
+
+const configuredApiUrl = stripTrailingSlash(import.meta.env.VITE_API_URL || '');
+const configuredBackendUrl = stripTrailingSlash(import.meta.env.VITE_BACKEND_URL || '');
+const apiBaseUrl = configuredApiUrl || ensureApiPath(configuredBackendUrl) || '/api';
 
 const api = axios.create({
   baseURL: apiBaseUrl,
