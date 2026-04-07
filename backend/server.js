@@ -18,6 +18,12 @@ const normalizeOrigin = (value) => (value || '').trim().replace(/\/$/, '');
 const originMatches = (allowedOrigin, requestOrigin) => {
 	if (allowedOrigin === '*') return true;
 	if (allowedOrigin === requestOrigin) return true;
+	if (allowedOrigin.includes('*.')) {
+		const wildcardIndex = allowedOrigin.indexOf('*.');
+		const prefix = allowedOrigin.slice(0, wildcardIndex);
+		const suffix = allowedOrigin.slice(wildcardIndex + 1); // includes leading "."
+		return requestOrigin.startsWith(prefix) && requestOrigin.endsWith(suffix);
+	}
 	if (allowedOrigin.startsWith('*.')) {
 		const suffix = allowedOrigin.slice(1); // ".example.com"
 		return requestOrigin.endsWith(suffix);
