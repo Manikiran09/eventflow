@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { FiCalendar, FiMapPin, FiUsers } from 'react-icons/fi';
 import { format } from 'date-fns';
+import { getAssetUrl } from '../utils/urls';
 
 // Category color map — matches the colorful card design from image
 const categoryColors = {
@@ -38,7 +39,7 @@ export default function EventCard({ event }) {
       {/* Banner image / gradient header */}
       <div style={{
         height: 160,
-        background: event.image ? `url(http://localhost:5000${event.image}) center/cover` : colors.bg,
+        background: event.image ? `url(${getAssetUrl(event.image)}) center/cover` : colors.bg,
         position: 'relative',
         display: 'flex',
         alignItems: 'flex-end',

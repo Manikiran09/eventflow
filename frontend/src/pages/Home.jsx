@@ -5,6 +5,7 @@ import api from '../api/axios';
 import EventCard from '../components/EventCard';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import { FiArrowRight, FiStar } from 'react-icons/fi';
+import { getAssetUrl } from '../utils/urls';
 
 // ─── Categories ────────────────────────────────────────────
 const CATEGORIES = [
@@ -109,7 +110,7 @@ export default function Home() {
         textAlign: 'center',
 
         // ✅ Your festival image as background
-        backgroundImage: `url(http://localhost:5000/uploads/p1.jpeg)`,
+        backgroundImage: `url(${getAssetUrl('/uploads/p1.jpeg')})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

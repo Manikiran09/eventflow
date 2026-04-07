@@ -13,9 +13,27 @@ connectDB();
 
 const app = express();
 
+const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:5173')
+	.split(',')
+	.map((origin) => origin.trim())
+	.filter(Boolean);
+
 // Middleware
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({
+	origin: (origin, callback) => {
+		if (!origin) return callback(null, true);
+		if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+			return callback(null, true);
+		}
+		return callback(new Error('Not allowed by CORS'));
+	},
+	credentials: true,
+}));
 app.use(express.json());
+
+if (process.env.NODE_ENV === 'production') {
+	app.set('trust proxy', 1);
+}
 
 // Serve uploaded images statically
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -27,6 +45,7 @@ app.use('/api/registrations', require('./routes/registrationRoutes'));
 
 // Health check
 app.get('/', (req, res) => res.json({ message: 'EventFlow API Running ✅' }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

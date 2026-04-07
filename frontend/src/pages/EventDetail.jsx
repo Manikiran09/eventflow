@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { FiCalendar, FiMapPin, FiUsers, FiTag, FiX, FiChevronRight } from 'react-icons/fi';
+import { getAssetUrl } from '../utils/urls';
 
 // Color for each event category
 const categoryColors = {
@@ -175,7 +176,7 @@ export default function EventDetail() {
       <div style={{
         height: 400, position: 'relative',
         background: event.image
-          ? `url(http://localhost:5000${event.image}) center/cover`
+          ? `url(${getAssetUrl(event.image)}) center/cover`
           : `linear-gradient(135deg, ${color}55, rgba(249,115,22,0.3))`,
         display: 'flex', alignItems: 'flex-end',
       }}>
