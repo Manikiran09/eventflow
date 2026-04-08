@@ -8,10 +8,21 @@ const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expires
 const signup = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
-    const userExists = await User.findOne({ email });
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    const normalizedName = (name || '').trim();
+    if (!normalizedName || !normalizedEmail || !password) {
+      return res.status(400).json({ message: 'Name, email, and password are required' });
+    }
+
+    const userExists = await User.findOne({ email: normalizedEmail });
     if (userExists) return res.status(400).json({ message: 'User already exists' });
 
-    const user = await User.create({ name, email, password, role: role || 'user' });
+    const user = await User.create({
+      name: normalizedName,
+      email: normalizedEmail,
+      password,
+      role: role || 'user'
+    });
     res.status(201).json({
       _id: user._id, name: user.name, email: user.email,
       role: user.role, token: generateToken(user._id)
@@ -25,7 +36,12 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    if (!normalizedEmail || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    const user = await User.findOne({ email: normalizedEmail });
     if (user && await user.matchPassword(password)) {
       res.json({
         _id: user._id, name: user.name, email: user.email,
