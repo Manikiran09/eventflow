@@ -35,6 +35,11 @@ Create `frontend/.env` from `frontend/.env.example` and set:
   - Backend public origin used for image URLs from `/uploads`.
   - Example: `https://api.example.com`
 
+### Vercel + Railway setup (recommended)
+- In Vercel project settings, add `VITE_API_URL=https://<your-railway-domain>.up.railway.app/api`
+- In Vercel project settings, add `VITE_BACKEND_URL=https://<your-railway-domain>.up.railway.app`
+- Redeploy Vercel after saving environment variables.
+
 ### Build
 ```bash
 cd frontend
