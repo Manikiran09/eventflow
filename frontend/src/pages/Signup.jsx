@@ -46,7 +46,7 @@ export default function Signup() {
           {/* Role toggle */}
           <div style={{ display: 'flex', gap: 8, background: 'rgba(0,0,0,0.2)', borderRadius: 50, padding: 4, marginBottom: 28 }}>
             {['user', 'organizer'].map(r => (
-              <button key={r} onClick={() => setForm({ ...form, role: r })} style={{
+              <button type="button" key={r} onClick={() => setForm({ ...form, role: r })} style={{
                 flex: 1, padding: '8px', borderRadius: 50, border: 'none', cursor: 'pointer',
                 fontFamily: 'Syne, sans-serif', fontWeight: 600, fontSize: 13, textTransform: 'capitalize',
                 background: form.role === r ? 'linear-gradient(135deg,#7c3aed,#f97316)' : 'transparent',
