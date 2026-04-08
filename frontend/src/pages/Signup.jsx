@@ -18,7 +18,7 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data } = await api.post('/auth/signup', form);
+      const { data } = await api.post('/signup', form);
       login(data);
       toast.success(`Welcome to EventFlow, ${data.name}! 🎊`);
       navigate(data.role === 'organizer' ? '/organizer' : '/dashboard');
