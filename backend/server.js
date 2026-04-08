@@ -15,25 +15,50 @@ const app = express();
 
 const normalizeOrigin = (value) => (value || '').trim().replace(/\/$/, '');
 
+const configuredOrigins = process.env.FRONTEND_URLS || process.env.FRONTEND_URL || '';
+
+const getOriginHost = (origin) => {
+	try {
+		return new URL(origin).host.toLowerCase();
+	} catch {
+		return '';
+	}
+};
+
+const normalizeAllowedOrigin = (value) => normalizeOrigin(value).toLowerCase();
+
 const originMatches = (allowedOrigin, requestOrigin) => {
 	if (allowedOrigin === '*') return true;
 	if (allowedOrigin === requestOrigin) return true;
+
+	const requestHost = getOriginHost(requestOrigin);
+	if (!requestHost) return false;
+
+	// Allow host-only entries like "eventflow-gilt.vercel.app".
+	if (!allowedOrigin.startsWith('http://') && !allowedOrigin.startsWith('https://') && !allowedOrigin.includes('*')) {
+		return allowedOrigin === requestHost;
+	}
+
+	// Allow host wildcard entries like "*.vercel.app".
+	if (allowedOrigin.startsWith('*.')) {
+		const suffix = allowedOrigin.slice(1); // ".vercel.app"
+		return requestHost.endsWith(suffix);
+	}
+
+	// Allow scheme-prefixed wildcard entries like "https://*.vercel.app".
 	if (allowedOrigin.includes('*.')) {
 		const wildcardIndex = allowedOrigin.indexOf('*.');
 		const prefix = allowedOrigin.slice(0, wildcardIndex);
 		const suffix = allowedOrigin.slice(wildcardIndex + 1); // includes leading "."
 		return requestOrigin.startsWith(prefix) && requestOrigin.endsWith(suffix);
 	}
-	if (allowedOrigin.startsWith('*.')) {
-		const suffix = allowedOrigin.slice(1); // ".example.com"
-		return requestOrigin.endsWith(suffix);
-	}
+
 	return false;
 };
 
-const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:5173')
+const allowedOrigins = configuredOrigins
 	.split(',')
-	.map((origin) => normalizeOrigin(origin).toLowerCase())
+	.map((origin) => normalizeAllowedOrigin(origin))
 	.filter(Boolean);
 
 // Middleware
@@ -41,6 +66,10 @@ app.use(cors({
 	origin: (origin, callback) => {
 		if (!origin) return callback(null, true);
 		if (process.env.NODE_ENV !== 'production') {
+			return callback(null, true);
+		}
+		// If no production origin allowlist is configured, do not block auth flows.
+		if (allowedOrigins.length === 0) {
 			return callback(null, true);
 		}
 		const requestOrigin = normalizeOrigin(origin).toLowerCase();
