@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const stripTrailingSlash = (value) => (value || '').replace(/\/$/, '');
+const defaultProductionApiUrl = 'https://event-management-system-production-c946.up.railway.app/api';
 
 const ensureApiPath = (value) => {
   const normalized = stripTrailingSlash(value || '');
@@ -10,9 +11,7 @@ const ensureApiPath = (value) => {
 
 const configuredApiUrl = stripTrailingSlash(import.meta.env.VITE_API_URL || '');
 const configuredBackendUrl = stripTrailingSlash(import.meta.env.VITE_BACKEND_URL || '');
-const isBrowser = typeof window !== 'undefined';
-const isLocalDevelopment = isBrowser && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
-const apiBaseUrl = configuredApiUrl || ensureApiPath(configuredBackendUrl) || (isLocalDevelopment ? '/api' : '');
+const apiBaseUrl = configuredApiUrl || ensureApiPath(configuredBackendUrl) || (import.meta.env.PROD ? defaultProductionApiUrl : '/api');
 
 const api = axios.create({
   baseURL: apiBaseUrl,
@@ -20,9 +19,6 @@ const api = axios.create({
 
 // Attach JWT token to every request automatically
 api.interceptors.request.use((config) => {
-  if (!config.baseURL) {
-    throw new Error('API base URL is not configured. Set VITE_API_URL or VITE_BACKEND_URL in your deployment environment.');
-  }
   const user = JSON.parse(localStorage.getItem('eventflow_user') || 'null');
   if (user?.token) config.headers.Authorization = `Bearer ${user.token}`;
   return config;
