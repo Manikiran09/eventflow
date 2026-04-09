@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const stripTrailingSlash = (value) => (value || '').replace(/\/$/, '');
-const defaultProductionApiUrl = 'https://event-management-system-production-c946.up.railway.app/api';
+const defaultProductionApiUrl = 'https://event-management-backend-production-b93f.up.railway.app/api';
 
 const ensureApiPath = (value) => {
   const normalized = stripTrailingSlash(value || '');
