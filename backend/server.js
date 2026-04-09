@@ -70,23 +70,10 @@ const allowedOrigins = configuredOrigins
 
 // Middleware
 app.use(cors({
-	origin: (origin, callback) => {
-		if (!origin) return callback(null, true);
-		if (process.env.NODE_ENV !== 'production') {
-			return callback(null, true);
-		}
-		// If no production origin allowlist is configured, do not block auth flows.
-		if (allowedOrigins.length === 0) {
-			return callback(null, true);
-		}
-		const requestOrigin = normalizeOrigin(origin).toLowerCase();
-		if (allowedOrigins.some((allowedOrigin) => originMatches(allowedOrigin, requestOrigin))) {
-			return callback(null, true);
-		}
-		return callback(new Error('Not allowed by CORS'));
-	},
+	origin: true,
 	credentials: true,
 }));
+app.options('*', cors());
 app.use(express.json());
 
 if (process.env.NODE_ENV === 'production') {
