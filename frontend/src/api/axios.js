@@ -9,7 +9,14 @@ const ensureApiPath = (value) => {
   return normalized.endsWith('/api') ? normalized : `${normalized}/api`;
 };
 
-const configuredApiUrl = stripTrailingSlash(import.meta.env.VITE_API_URL || '');
+const normalizeConfiguredApiUrl = (value) => {
+  const normalized = stripTrailingSlash(value || '');
+  if (!normalized) return '';
+  // Accept relative /api or absolute backend origin; enforce /api suffix for both.
+  return ensureApiPath(normalized);
+};
+
+const configuredApiUrl = normalizeConfiguredApiUrl(import.meta.env.VITE_API_URL || '');
 const configuredBackendUrl = stripTrailingSlash(import.meta.env.VITE_BACKEND_URL || '');
 const apiBaseUrl = configuredApiUrl || ensureApiPath(configuredBackendUrl) || (import.meta.env.PROD ? defaultProductionApiUrl : '/api');
 
